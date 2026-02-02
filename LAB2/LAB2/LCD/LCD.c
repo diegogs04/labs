@@ -15,6 +15,11 @@ static void enable_LCD(void)
 	PORTC &= ~(1 << PC2);  // EN = 0
 	_delay_us(100);
 }
+static void separar_byte(uint8_t datos)
+{
+	PORTD = (PORTD & 0x03) | (datos << 2);
+	PORTB = (PORTB & 0b11111100) | (datos >> 6);
+}
 void setup_LCD_8()
 {
 	_delay_ms(20);
@@ -25,7 +30,7 @@ void setup_LCD_8()
 }
 void command_LCD(uint8_t com)
 {
-	PORTD = com;
+	separar_byte(com);
 	PORTC &= ~(1 << PC0);
 	PORTC &= ~(1 << PC1);
 	enable_LCD();
@@ -33,7 +38,7 @@ void command_LCD(uint8_t com)
 }
 void char_LCD(uint8_t car)
 {
-	 PORTD = car;           // Datos
+	 separar_byte(car);         // Datos
 	 PORTC |= (1 << PC0);   // RS = 1
 	 PORTC &= ~(1 << PC1);  // RW = 0
 	 enable_LCD();
