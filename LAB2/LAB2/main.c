@@ -23,9 +23,10 @@ int main(void)
 {
     setup();
 	char opc;
-	//char operacion;
+	char operacion;
 	char buffer2[32];
 	uint8_t menu = 0;
+	uint8_t contador =0;
 	
 	char buffer [6];
     while (1) 
@@ -67,6 +68,34 @@ int main(void)
 				menu =0;
 				
 			}
+			else if (opc == '2')
+			{
+				UART_TX_string("Escriba + si es suma y - si es resta:");
+				operacion = UART_RX_char();
+				UART_TX_char(operacion);
+				UART_TX_string("\r\n Operacion recibida");
+				if (operacion =='+')
+				{
+					contador++;
+				}
+				else if (operacion == '-')
+				{
+					contador--;
+				}
+				else
+				{
+					UART_TX_string("Operacion invalida.\r\n");
+				}
+				
+				menu = 0;
+
+			}
+			else
+			{
+				UART_TX_string("Opcion invalida.\r\n");
+				menu = 0;
+			}
+			_delay_ms(200);
 		}
 		
         cursor_LCD(0,0);
@@ -100,6 +129,14 @@ int main(void)
         string_LCD("     ");
         cursor_LCD(1,7);
         char_LCD('V');
+		
+		cursor_LCD(1,9);
+		string_LCD("S3:");
+		itoa(contador,buffer,10);
+		string_LCD("     ");
+		cursor_LCD(1,12);
+		string_LCD(buffer);
+		
 
         _delay_ms(300);
     
