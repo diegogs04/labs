@@ -11,8 +11,9 @@
 #include <util/delay.h>
 
 volatile uint8_t canal = 0; //bandera de canal a leer
-extern volatile uint16_t adc3 = 0; // valor de adc3 
-extern volatile uint16_t adc4 = 0; // valor de adc4
+volatile uint16_t adc3 = 0; // valor de adc3 
+volatile uint16_t adc4 = 0; // valor de adc4
+
 
 void init_ADC(void)
 {

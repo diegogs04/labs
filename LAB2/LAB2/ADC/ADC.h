@@ -10,7 +10,11 @@
 #define ADC_H_
 #include <avr/io.h>
 #include <util/delay.h>
+
+extern volatile uint16_t adc3;
+extern volatile uint16_t adc4;
+
 void init_ADC(void);
-ISR (ADC_vect);
+
 
 #endif /* ADC_H_ */
