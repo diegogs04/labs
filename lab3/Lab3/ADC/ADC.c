@@ -11,8 +11,8 @@
 #include <util/delay.h>
 
 volatile uint8_t canal = 0; //bandera de canal a leer
-volatile uint16_t adc3 = 0; // valor de adc3 
-volatile uint16_t adc4 = 0; // valor de adc4
+volatile uint8_t adc3 = 0; // valor de adc3 
+volatile uint8_t adc4 = 0; // valor de adc4
 
 
 void init_ADC(void)
@@ -33,12 +33,12 @@ ISR(ADC_vect)
 	switch(canal)
 	{
 		case 0:
-		adc3 = ADC;
+		adc3 = ADCH;
 		ADMUX = (ADMUX & 0xF8) | (1 << MUX2); // SELECCION DE REFERENCIA Y CANAL PC4
 		canal = 1;//CAMBIO DE BANDERA PARA LEER OTRO CANAL
 		break;
 		case 1: 
-		adc4 = ADC;// TOMA EL VALOR DEL REGISTRO ADC Y LO GUARDA EN LA VARIABLE
+		adc4 = ADCH;// TOMA EL VALOR DEL REGISTRO ADC Y LO GUARDA EN LA VARIABLE
 		ADMUX = (ADMUX & 0xF8) | (1 << MUX0) | (1 << MUX1); //referencia y canal PC3
 		canal = 0;
 		break;

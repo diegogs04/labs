@@ -5,6 +5,7 @@
  *  Author: diego
  */ 
 //Librerias
+#include <avr/io.h>
 #include "SPI.h"
 
 //NON-Interrupt subroutines

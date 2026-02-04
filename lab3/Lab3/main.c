@@ -10,13 +10,14 @@
 #include <avr/io.h>
 #include <util/delay.h>
 #include <stdint.h>
-
-
-//Incluir librerias hechas
+#include "ADC/ADC.h"
 #include "SPI/SPI.h"
 
+
+
 //Variables
-uint8_t valorSPI = 0;
+uint8_t valor1 = 0;
+uint8_t valor2 = 0; 
 
 //Function prototypes
 void refreshPORT(uint8_t valor);
@@ -25,26 +26,25 @@ void setup();
 
 int main(void)
 {
+	cli();
 	setup();
-	spiInit(SPI_MASTER_OSC_DIV4, SPI_DATA_ORDER_MSB, SPI_CLOCK_IDLE_LOW, SPI_CLOCK_FIRST_EDGE);
-	
+	spiInit(SPI_SLAVE_SS, SPI_DATA_ORDER_MSB, SPI_CLOCK_IDLE_LOW, SPI_CLOCK_FIRST_EDGE);
+	init_ADC();
+	SPCR |= (1 << SPIE);
+	sei();
 	while (1)
 	{
-		PORTC &= ~(1 << PORTC5);						//poner en 0 al esclavo
-		spiWrite('c');
-		spiWrite(0x00);									//byte adicional (basura)
-		valorSPI = spiRead();
-		refreshPORT(valorSPI);
-		PORTC |= (1 << PORTC5);							//poner en 1 al esclavo
-		_delay_ms(250);
+		ADCSRA |= (1 << ADSC);
+		PORTD = adc3;
 	}
 }
 
 //NON-Interrupt subroutines
 void setup(){
+	UCSR0B = 0x00;
 	DDRC |= (1 << PORTC5);																								//SALIDA ESCLAVO
-	DDRB |= (1 << PORTB0) | (1 << PORTB1);																				//SALIDA LEDS
-	DDRD |= (1 << PORTD2) | (1 << PORTD3) | (1 << PORTD4) | (1 << PORTD5) | (1 << PORTD6) | (1 << PORTD7);				//SALIDA LEDS
+//	DDRB |= (1 << PORTB0) | (1 << PORTB1);																				//SALIDA LEDS
+DDRD |= (1 << PORTD2) | (1 << PORTD3) | (1 << PORTD4) | (1 << PORTD5) | (1 << PORTD6) | (1 << PORTD7);				//SALIDA LEDS
 	
 	PORTC &= ~(1 << PORTC5);
 	PORTB &= ~((1 << PORTB0) | (1 << PORTB1));
@@ -109,4 +109,22 @@ void refreshPORT(uint8_t valor){
 	}
 }
 
-
+ISR(SPI_STC_vect)
+{
+	uint8_t spiValor = SPDR;
+	if(spiValor == 'c')
+	{
+		valor1 = adc3;
+		valor2 = adc4;
+	if (spiValor == 'a')
+	{
+		spiWrite(valor1);
+		_delay_ms(200);
+	}
+	else if (spiValor == 'b')
+	{
+		spiWrite(valor2);
+		_delay_ms(200);
+	}
+	}
+}

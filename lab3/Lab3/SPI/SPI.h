@@ -8,8 +8,6 @@
 
 #ifndef SPI_H_
 #define SPI_H_
-#ifndef SPI_H_
-#define SPI_H_
 
 #include <avr/io.h>
 #include <stdint.h>
@@ -72,11 +70,6 @@ void spiInit(Spi_Type, Spi_Data_Order, Spi_Clock_Polarity, Spi_Clock_Phase);
 void spiWrite(uint8_t dat);
 unsigned spiDataReady();
 uint8_t spiRead(void);
-
-
-#endif /* SPI_H_ */
-
-
 
 
 #endif /* SPI_H_ */
