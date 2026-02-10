@@ -18,6 +18,11 @@
 //Variables
 uint8_t valor1 = 0;
 uint8_t valor2 = 0; 
+uint8_t v_serial = 0;
+uint8_t turno = 0;
+uint8_t bandera;
+uint8_t temporal;
+
 
 //Function prototypes
 void refreshPORT(uint8_t valor);
@@ -33,98 +38,131 @@ int main(void)
 	SPCR |= (1 << SPIE);
 	sei();
 	while (1)
-	{
-		ADCSRA |= (1 << ADSC);
-		PORTD = adc3;
+	{											
 	}
 }
 
 //NON-Interrupt subroutines
 void setup(){
-	UCSR0B = 0x00;
-	DDRC |= (1 << PORTC5);																								//SALIDA ESCLAVO
-//	DDRB |= (1 << PORTB0) | (1 << PORTB1);																				//SALIDA LEDS
-DDRD |= (1 << PORTD2) | (1 << PORTD3) | (1 << PORTD4) | (1 << PORTD5) | (1 << PORTD6) | (1 << PORTD7);				//SALIDA LEDS
+	//UCSR0B = 0x00;
+	DDRD |= (1 << PORTD0)| (1 << PORTD1) |(1 << PORTD2) | (1 << PORTD3) | (1 << PORTD4) | (1 << PORTD5) | (1 << PORTD6) | (1 << PORTD7);				//SALIDA LEDS
 	
-	PORTC &= ~(1 << PORTC5);
-	PORTB &= ~((1 << PORTB0) | (1 << PORTB1));
-	PORTD &= ~((1 << PORTD2) | (1 << PORTD3) | (1 << PORTD4) | (1 << PORTD5) | (1 << PORTD6) | (1 << PORTD7));
+	PORTD &= ~((1 << PORTD0) | (1 << PORTD1) | (1 << PORTD2) | (1 << PORTD3) | (1 << PORTD4) | (1 << PORTD5) | (1 << PORTD6) | (1 << PORTD7));
 }
 
 void refreshPORT(uint8_t valor){
+	PORTD = valor;
+	/*
 	if (valor & 0b10000000)
 	{
-		PORTB |= (1 << PORTB1);
+		PORTD |= (1 << PORTD0);
 		}else{
-		PORTB &= ~(1 << PORTB1);
+		PORTD &= ~(1 << PORTD0);
 	}
 	
 	if (valor & 0b01000000)
 	{
-		PORTB |= (1 << PORTB0);
+		PORTD |= (1 << PORTD1);
 		}else{
-		PORTB &= ~(1 << PORTB0);
+		PORTD &= ~(1 << PORTD1);
 	}
 	
 	if (valor & 0b00100000)
 	{
-		PORTD |= (1 << PORTD7);
+		PORTD |= (1 << PORTD2);
 		}else{
-		PORTD &= ~(1 << PORTD7);
+		PORTD &= ~(1 << PORTD2);
 	}
 	
 	if (valor & 0b00010000)
-	{
-		PORTD |= (1 << PORTD6);
-		}else{
-		PORTD &= ~(1 << PORTD6);
-	}
-	
-	if (valor & 0b00001000)
-	{
-		PORTD |= (1 << PORTD5);
-		}else{
-		PORTD &= ~(1 << PORTD5);
-	}
-	
-	if (valor & 0b00000100)
-	{
-		PORTD |= (1 << PORTD4);
-		}else{
-		PORTD &= ~(1 << PORTD4);
-	}
-	
-	if (valor & 0b00000010)
 	{
 		PORTD |= (1 << PORTD3);
 		}else{
 		PORTD &= ~(1 << PORTD3);
 	}
 	
+	if (valor & 0b00001000)
+	{
+		PORTD |= (1 << PORTD4);
+		}else{
+		PORTD &= ~(1 << PORTD4);
+	}
+	
+	if (valor & 0b00000100)
+	{
+		PORTD |= (1 << PORTD5);
+		}else{
+		PORTD &= ~(1 << PORTD5);
+	}
+	
+	if (valor & 0b00000010)
+	{
+		PORTD |= (1 << PORTD6);
+		}else{
+		PORTD &= ~(1 << PORTD6);
+	}
+	
 	if (valor & 0b00000001)
 	{
-		PORTD |= (1 << PORTD2);
+		PORTD |= (1 << PORTD7);
 		}else{
-		PORTD &= ~(1 << PORTD2);
+		PORTD &= ~(1 << PORTD7);
 	}
+	*/
 }
 
 ISR(SPI_STC_vect)
 {
-	uint8_t spiValor = SPDR;
-	if(spiValor == 'c')
+	uint8_t rx = SPDR;
+	
+	if (bandera == 1)
 	{
-		valor1 = adc3;
-		valor2 = adc4;
-	if (spiValor == 'a')
+		refreshPORT(rx);
+		bandera=0;
+	}else
 	{
-		spiWrite(valor1);
-		_delay_ms(200);
+		if (rx == 'c')
+		{
+			SPDR = adc3;
+		}
+		if (rx == 'a')
+		{
+			SPDR = adc4;
+		}
+		if (rx == 'w')
+		{
+			bandera = 1;
+		}
 	}
-	else if (spiValor == 'b')
+	//temporal = rx;
+	/*
+	switch(turno)
 	{
-		spiWrite(valor2);
-		_delay_ms(200);
+		case 0:
+			turno = 1;
+			
+			if (rx == 'c')
+			{
+				valor1 = adc3;
+				SPDR = valor1;
+			}
+			
+			if (rx == 'a')
+			{
+				valor2 = adc4;
+				SPDR = valor2;
+			}
+			break;
+			
+		case 1:
+			turno = 0;
+			if (rx == 'p')
+			{
+				v_serial = rx;
+				refreshPORT(v_serial);
+			}
+			
+			break;
 	}
-	}
+	*/
 }
